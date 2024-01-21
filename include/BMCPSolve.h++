@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <cstdio>
+#include <cmath>
+#include <cassert>
 #include "mList.h++"
 
 extern const int maxn;
@@ -100,7 +102,21 @@ extern int origin_conf_change_in_solution[];
 extern int conf_change_timestamp[];
 extern int timestamp_gap;
 
-int Random_Select_Several_Items(int, int);
+extern int arms_count;
+extern int estimated_element_select_value[];
+extern int element_select_times[];
+extern int local_optima_count;
+extern int lambda;
+extern int history[];
+extern int history_count;
+extern int gamma;
+extern int gamma_exp[];
+
+double r(int);
+
+double Upper_Confidence_Bound(int);
+
+int Random_Select_Several_Elements_To_Add_In(int);
 
 void CC_Search();
 

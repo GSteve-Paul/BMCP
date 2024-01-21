@@ -36,6 +36,7 @@ int star_solution_contribution[maxm];
 //O(|Vi| * |Ve|)
 void Add_Vertex(int itemIdx)
 {
+    //assert(solution[itemIdx] == 0);
     solution_size++;
     solution[itemIdx] = 1;
     solution_weight_sum += weight[itemIdx];
@@ -72,6 +73,7 @@ void Add_Vertex(int itemIdx)
 
 void Remove_Vertex(int itemIdx)
 {
+    //assert(solution[itemIdx] == 1);
     solution_size--;
     solution[itemIdx] = 0;
     solution_weight_sum -= weight[itemIdx];
@@ -107,6 +109,7 @@ void Remove_Vertex(int itemIdx)
 //O(|Vi| * |Ve|)
 void Add_Vertex_With_Conf_Change(int itemIdx, int iter)
 {
+    //assert(solution[itemIdx] == 0);
     solution_size++;
     solution[itemIdx] = 1;
     solution_weight_sum += weight[itemIdx];
@@ -153,6 +156,7 @@ void Add_Vertex_With_Conf_Change(int itemIdx, int iter)
 
 void Remove_Vertex_With_Conf_Change(int itemIdx, int iter)
 {
+    //assert(solution[itemIdx] == 1);
     solution_size--;
     solution[itemIdx] = 0;
     solution_weight_sum -= weight[itemIdx];
@@ -283,6 +287,13 @@ void Initialization()
     {
         solution_elements[i] = 0;
     }
+    //initialize gamma
+    history_count = 20;
+    gamma_exp[0] = gamma;
+    for (int i = 1; i <= history_count; i++)
+    {
+        gamma_exp[i] = gamma_exp[i - 1] * gamma;
+    }
 }
 
 void Greedy_Initialization()
@@ -317,26 +328,23 @@ void Greedy_Initialization()
 }
 
 //select items from unselected item set.
-int Random_Select_Several_Items(int max_num, int iter)
+int Random_Select_Several_Elements_To_Add_In(int iter)
 {
     random_list.clear();
-    for (int i = 1; i <= m; i++)
+    for (int i = 1; i <= n; i++)
     {
-        if (solution[i]) continue;
-        //conf_change_out_of_solution[i]/origin_conf_change_out_of_solution[i] < random / 100 (random = 1 ~ 100)
-        if (conf_change_out_of_solution[i] * 10 < origin_conf_change_out_of_solution[i] * 9 ||
-            iter - conf_change_timestamp[i] >= timestamp_gap)
-            random_list.push(i);
+        if (solution_elements[i]) continue;
+        random_list.push(i);
     }
-    if (random_list.size <= max_num) return random_list.size - 1;
-    for (int i = 0; i < max_num; i++)
+    if (random_list.size <= arms_count) return random_list.size - 1;
+    for (int i = 0; i < arms_count; i++)
     {
         int random_num = rand() % (random_list.size - i) + i;
         //swap i and random_num
         std::swap(random_list[random_num], random_list[i]);
     }
     //from 0 to max_num - 1
-    return max_num - 1;
+    return arms_count - 1;
 }
 
 int Imax = 100000;
@@ -345,13 +353,38 @@ int origin_conf_change_out_of_solution[maxm];
 int conf_change_in_solution[maxm];
 int origin_conf_change_in_solution[maxm];
 int conf_change_timestamp[maxm];
-int timestamp_gap = 5;
+int timestamp_gap = 3;
+
+int arms_count = 50;
+int estimated_element_select_value[maxn];
+int element_select_times[maxn];
+int local_optima_count;
+int lambda = 20;
+int history[maxn];
+int history_count;
+
+int gamma = 2;
+int gamma_exp[1001];
+
+double Upper_Confidence_Bound(int elementIdx)
+{
+    return estimated_element_select_value[elementIdx] +
+           lambda * sqrt(log(local_optima_count) / (element_select_times[elementIdx] + 1.0));
+}
+
+double r(int itemIdx)
+{
+    int cost_before = solution_profit_sum;
+    int cost_new = solution_profit_sum + solution_contribution[itemIdx];
+    int cost_before_best = best_solution_profit_sum;
+    return (cost_before - cost_new) / (cost_before - cost_before_best + 1.0);
+}
 
 void CC_Search()
 {
     //Sb <- S
     Solution_To_Best_Solution();
-    //initialize conf_change_out_of_solution
+    //initialize conf_change value
     for (int i = 1; i <= m; i++)
     {
         conf_change_out_of_solution[i] = 0;
@@ -359,6 +392,20 @@ void CC_Search()
         conf_change_in_solution[i] = 1;
         origin_conf_change_in_solution[i] = 0;
         conf_change_timestamp[i] = -1;
+    }
+    //initialize estimated_element_select_value and element_select_times
+    arms_count = 20;
+    for (int i = 1; i <= n; i++)
+    {
+        estimated_element_select_value[i] = 1;
+        element_select_times[i] = 0;
+    }
+    local_optima_count = 1;
+
+    //initialize history
+    for (int i = 1; i <= history_count; i++)
+    {
+        history[i] = -1;
     }
     int iter = 0;
     while (iter < Imax)
@@ -397,35 +444,86 @@ void CC_Search()
             if (solution_profit_sum > star_solution_profit_sum) star_solution_time = Get_Time();
             Solution_To_Best_Solution();
         }
-        //randomly select up to 50 items and then select the best one with the highest dd
-        if (solution_weight_sum <= C)
+        //randomly select up to arms_count elements and then find out the best element named ustar by Upper_Confidence_Bound
+        if (solution_weight_sum < C)
         {
-            int idx = Random_Select_Several_Items(50, iter);
+            int idx = Random_Select_Several_Elements_To_Add_In(iter);
             int ustar = -1;
+            double ustar_upper_confidence_bound;
+            double temp_upper_confidence_bound;
             for (int i = 0; i <= idx; i++)
             {
                 if (ustar == -1)
                 {
                     ustar = random_list[i];
+                    ustar_upper_confidence_bound = Upper_Confidence_Bound(ustar);
                     continue;
                 }
-                if (solution_contribution[random_list[i]] * weight[ustar] >
-                    solution_contribution[ustar] * weight[random_list[i]])
+                if ((temp_upper_confidence_bound = Upper_Confidence_Bound(random_list[i])) >
+                    ustar_upper_confidence_bound)
                 {
                     ustar = random_list[i];
+                    ustar_upper_confidence_bound = temp_upper_confidence_bound;
                 }
             }
-            if (ustar != -1)
+            if (ustar == -1) continue;
+            //find the best item which can cover the element and then select the best one named vstar by r value
+            int vstar = -1;
+            double vstar_r;
+            double temp_r;
+            for (int item_nei: elements_neighbor[ustar])
             {
-                Add_Vertex_With_Conf_Change(ustar, iter);
-                //printf("add vertex %d\n", ustar);
+                if (solution[item_nei]) continue;
+                if (conf_change_out_of_solution[item_nei] == origin_conf_change_out_of_solution[item_nei] &&
+                    iter - conf_change_timestamp[item_nei] <= timestamp_gap)
+                {
+                    continue;
+                }
+                if (vstar == -1)
+                {
+                    vstar = item_nei;
+                    vstar_r = Upper_Confidence_Bound(vstar);
+                    continue;
+                }
+                if ((temp_r = r(item_nei)) > vstar_r)
+                {
+                    vstar = item_nei;
+                    vstar_r = temp_r;
+                }
             }
+            if (vstar == -1) continue;
+            //add vertex
+            element_select_times[ustar]++;
+            Add_Vertex_With_Conf_Change(vstar, iter);
+            //update the estimated value of the elements in history
+            for (int i = 1; i <= history_count; i++)
+            {
+                if (history[i] == -1) continue;
+                estimated_element_select_value[history[i]] += (int) (gamma_exp[history_count - i] * vstar_r);
+            }
+            //add ustar into the history
+            for (int i = history_count; i >= 1; i--)
+            {
+                history[i + 1] = history[i];
+            }
+            history[1] = ustar;
         }
         if (solution_weight_sum <= C && solution_profit_sum > best_solution_profit_sum)
         {
             if (solution_profit_sum > star_solution_profit_sum) star_solution_time = Get_Time();
             Solution_To_Best_Solution();
         }
+        bool get_into_local_optima = true;
+        for (int i = 1; i <= m; i++)
+        {
+            if (solution[i]) continue;
+            if (solution_weight_sum + weight[i] <= C)
+            {
+                get_into_local_optima = false;
+                break;
+            }
+        }
+        if (get_into_local_optima) local_optima_count++;
         iter++;
         //printf("%d\n", solution_profit_sum);
     }
@@ -509,7 +607,7 @@ void Deep_Optimize()
 clock_t start_time;
 clock_t now_time;
 clock_t star_solution_time;
-int time_limit = 600;//second
+int time_limit = 30;//second
 
 void Start_Clock()
 {
