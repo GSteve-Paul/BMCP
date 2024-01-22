@@ -287,11 +287,11 @@ void Initialization()
     {
         solution_elements[i] = 0;
     }
-    //initialize gamma
-    gamma_exp[0] = gamma;
+    //initialize gamma_value
+    gamma_exp[0] = gamma_value;
     for (int i = 1; i <= history_count; i++)
     {
-        gamma_exp[i] = gamma_exp[i - 1] * gamma;
+        gamma_exp[i] = gamma_exp[i - 1] * gamma_value;
     }
 }
 
@@ -362,7 +362,7 @@ int lambda = 50;
 int history[maxn];
 int history_count = 20;
 
-double gamma = 2;
+double gamma_value = 2;
 double gamma_exp[1001];
 
 double Upper_Confidence_Bound(int elementIdx)

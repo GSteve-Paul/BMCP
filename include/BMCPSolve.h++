@@ -109,7 +109,7 @@ extern int local_optima_count;
 extern int lambda;
 extern int history[];
 extern int history_count;
-extern double gamma;
+extern double gamma_value;
 extern double gamma_exp[];
 
 double r(int);
