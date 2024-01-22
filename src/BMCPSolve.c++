@@ -358,11 +358,11 @@ int arms_count = 20;
 int estimated_element_select_value[maxn];
 int element_select_times[maxn];
 int local_optima_count = 1;
-int lambda = 1;
+int lambda = 50;
 int history[maxn];
 int history_count = 20;
 
-double gamma = 1.1;
+double gamma = 2;
 double gamma_exp[1001];
 
 double Upper_Confidence_Bound(int elementIdx)
@@ -398,7 +398,6 @@ void CC_Search()
         estimated_element_select_value[i] = 1;
         element_select_times[i] = 0;
     }
-
     //initialize history
     for (int i = 1; i <= history_count; i++)
     {
@@ -443,7 +442,7 @@ void CC_Search()
             Solution_To_Best_Solution();
         }
         //randomly select up to arms_count elements and then find out the best element named ustar by Upper_Confidence_Bound
-        if (solution_weight_sum < C)
+        if (solution_weight_sum <= C)
         {
             int idx = Random_Select_Several_Elements_To_Add_In();
             int ustar = -1;
