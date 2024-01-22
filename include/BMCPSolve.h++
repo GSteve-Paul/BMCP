@@ -109,14 +109,14 @@ extern int local_optima_count;
 extern int lambda;
 extern int history[];
 extern int history_count;
-extern int gamma;
-extern int gamma_exp[];
+extern double gamma;
+extern double gamma_exp[];
 
 double r(int);
 
 double Upper_Confidence_Bound(int);
 
-int Random_Select_Several_Elements_To_Add_In(int);
+int Random_Select_Several_Elements_To_Add_In();
 
 void CC_Search();
 
