@@ -358,11 +358,11 @@ int arms_count = 20;
 int estimated_element_select_value[maxn];
 int element_select_times[maxn];
 int local_optima_count = 1;
-int lambda = 50;
+int lambda = 1;
 int history[maxn];
 int history_count = 20;
 
-double gamma_value = 2;
+double gamma_value = 0.9;
 double gamma_exp[1001];
 
 double Upper_Confidence_Bound(int elementIdx)

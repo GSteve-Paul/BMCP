@@ -84,6 +84,6 @@ int main(int argc, char *argv[])
     Set_Random_Seed(argv[2]);
     Solve();
     Output_Info(argv[1], argv[2]);
-    system("pause");
+    //system("pause");
 }
 //
