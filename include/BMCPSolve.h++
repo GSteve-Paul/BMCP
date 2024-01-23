@@ -103,7 +103,7 @@ extern int conf_change_timestamp[];
 extern int timestamp_gap;
 
 extern int arms_count;
-extern int estimated_element_select_value[];
+extern double estimated_element_select_value[];
 extern int element_select_times[];
 extern int local_optima_count;
 extern int lambda;

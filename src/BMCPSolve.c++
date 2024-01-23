@@ -355,7 +355,7 @@ int conf_change_timestamp[maxm];
 int timestamp_gap = 3;
 
 int arms_count = 20;
-int estimated_element_select_value[maxn];
+double estimated_element_select_value[maxn];
 int element_select_times[maxn];
 int local_optima_count = 1;
 int lambda = 1;
@@ -479,7 +479,7 @@ void CC_Search()
                 if (vstar == -1)
                 {
                     vstar = item_nei;
-                    vstar_r = Upper_Confidence_Bound(vstar);
+                    vstar_r = r(vstar);
                     continue;
                 }
                 if ((temp_r = r(item_nei)) > vstar_r)
@@ -497,7 +497,7 @@ void CC_Search()
             for (int i = 1; i <= history_count; i++)
             {
                 if (history[i] == -1) continue;
-                estimated_element_select_value[history[i]] += (int) (gamma_exp[history_count - i] * vstar_r);
+                estimated_element_select_value[history[i]] += gamma_exp[history_count - i] * vstar_r;
             }
             //add ustar into the history
             for (int i = history_count; i >= 1; i--)
