@@ -345,7 +345,7 @@ int origin_conf_change_out_of_solution[maxm];
 int conf_change_in_solution[maxm];
 int origin_conf_change_in_solution[maxm];
 int conf_change_timestamp[maxm];
-int timestamp_gap = 5;
+int timestamp_gap = 3;
 
 void CC_Search()
 {
