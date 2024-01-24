@@ -433,7 +433,6 @@ void CC_Search()
                 Remove_Vertex_With_Conf_Change(ustar, iter);
                 //printf("remove vertex %d\n", ustar);
             }
-
         }
         if (solution_weight_sum <= C && solution_profit_sum > best_solution_profit_sum)
         {
@@ -482,7 +481,11 @@ void CC_Search()
                         ustar_upper_confidence_bound = temp_upper_confidence_bound;
                     }
                 }
-                if (ustar == -1) continue;
+                if (ustar == -1)
+                {
+                    iter++;
+                    continue;
+                }
                 //find the best item which can cover the element and then select the best one named vstar by r value
                 int vstar = -1;
                 double vstar_r;
@@ -507,7 +510,12 @@ void CC_Search()
                         vstar_r = temp_r;
                     }
                 }
-                if (vstar == -1) continue;
+                if (vstar == -1)
+                {
+                    iter++;
+                    element_select_times[ustar]++;
+                    continue;
+                }
                 //add vertex
                 //printf("add item %d, element %d ", vstar, ustar);
                 element_select_times[ustar]++;
@@ -532,6 +540,7 @@ void CC_Search()
             if (solution_profit_sum > star_solution_profit_sum) star_solution_time = Get_Time();
             Solution_To_Best_Solution();
         }
+        //printf("iter %d\n",iter);
         iter++;
     }
 }
@@ -632,8 +641,6 @@ void Solve()
     Start_Clock();
     Initialization();
     Greedy_Initialization();
-//    star_solution_time = Get_Time();
-//    Solution_To_Star_Solution();
     while (Get_Time() < time_limit * CLOCKS_PER_SEC)
     {
         if (solution_profit_sum > star_solution_profit_sum)
@@ -651,6 +658,6 @@ void Solve()
         //printf("cc %d\n",solution_profit_sum);
         Deep_Optimize();
         //printf("deepopt %d\n",solution_profit_sum);
-        printf("time %d, star_solution_profit %d\n", Get_Time(), star_solution_profit_sum);
+        //printf("time %d, star_solution_profit %d\n", Get_Time(), star_solution_profit_sum);
     }
 }

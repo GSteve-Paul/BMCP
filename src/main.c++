@@ -80,10 +80,10 @@ void Output_Info(char *file_path, char *seed_string)
 
 int main(int argc, char *argv[])
 {
-    Input_From_File(argv[1]);
+    Input_From_File2(argv[1]);
     Set_Random_Seed(argv[2]);
     Solve();
     Output_Info(argv[1], argv[2]);
-    system("pause");
+    //system("pause");
 }
 //
