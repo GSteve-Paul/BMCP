@@ -139,8 +139,10 @@ void Deep_Optimize();
 extern clock_t start_time;
 extern clock_t now_time;
 extern int time_limit;
+extern int total_iterations;
 
 extern clock_t star_solution_time;
+extern int star_solution_iterations;
 
 void Start_Clock();
 

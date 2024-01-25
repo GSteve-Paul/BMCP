@@ -1,5 +1,10 @@
 #include "../include/BMCPSolve.h++"
 
+void Set_Time_Limit(char *ti_lim)
+{
+    sscanf(ti_lim, "%d", &time_limit);
+}
+
 void Set_Random_Seed(char *seed_string)
 {
     unsigned int seed;
@@ -75,15 +80,21 @@ void Input_From_File2(char *file_path)
 
 void Output_Info(char *file_path, char *seed_string)
 {
-    printf("%s %s %d %d\n", file_path, seed_string, star_solution_profit_sum, (int) star_solution_time);
+    printf("%s %s %d %d %d %d\n", file_path, seed_string, star_solution_profit_sum, (int) star_solution_time,
+           star_solution_iterations, total_iterations);
 }
 
 int main(int argc, char *argv[])
 {
-    Input_From_File2(argv[1]);
-    Set_Random_Seed(argv[2]);
+    int input_type;
+    sscanf(argv[1], "%d", &input_type);
+    if (input_type == 1)
+        Input_From_File(argv[2]);
+    else
+        Input_From_File2(argv[2]);
+    Set_Random_Seed(argv[3]);
+    Set_Time_Limit(argv[4]);
     Solve();
-    Output_Info(argv[1], argv[2]);
+    Output_Info(argv[2], argv[3]);
     //system("pause");
 }
-//

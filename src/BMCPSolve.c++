@@ -293,6 +293,8 @@ void Initialization()
     {
         gamma_exp[i] = gamma_exp[i - 1] * gamma_value;
     }
+    total_iterations = 0;
+    star_solution_iterations = 0;
 }
 
 void Greedy_Initialization()
@@ -358,7 +360,7 @@ int arms_count = 20;
 double estimated_element_select_value[maxn];
 int element_select_times[maxn];
 int local_optima_count = 1;
-int lambda = 550;
+int lambda = 1000;
 int history[maxn];
 int history_count = 20;
 
@@ -376,7 +378,7 @@ double r(int itemIdx)
     int cost_before = solution_profit_sum;
     int cost_new = solution_profit_sum + solution_contribution[itemIdx];
     int cost_before_best = best_solution_profit_sum;
-    return 10 * (cost_before - cost_new) / (cost_before - cost_before_best + 1.0);
+    return (cost_before - cost_new) / (cost_before - cost_before_best + 1.0);
 }
 
 void CC_Search()
@@ -408,7 +410,7 @@ void CC_Search()
     {
         if (solution_weight_sum > C)
         {
-            //select an item in solution with the lowest dd, and then remove it
+            //select an item in solution with the lowest dd, and then remove total_iterations
             //contribution[i]/weight[i] < contribution[ustar]/weight[ustar]
             int ustar = -1;
             for (int i = 1; i <= m; i++)
@@ -437,27 +439,41 @@ void CC_Search()
         if (solution_weight_sum <= C && solution_profit_sum > best_solution_profit_sum)
         {
             //printf("profit %d\n", best_solution_profit_sum);
-            if (solution_profit_sum > star_solution_profit_sum) star_solution_time = Get_Time();
+            if (solution_profit_sum > star_solution_profit_sum)
+            {
+                star_solution_time = Get_Time();
+                star_solution_iterations = total_iterations;
+            }
             Solution_To_Best_Solution();
         }
         //randomly select up to arms_count elements and then find out the best element named ustar by Upper_Confidence_Bound
         if (solution_weight_sum <= C)
         {
             bool get_into_local_optima = true;
-            int best_item = -1;
+            int m_star = -1;
             for (int i = 1; i <= m; i++)
             {
                 if (solution[i]) continue;
                 if (solution_weight_sum + weight[i] <= C && solution_contribution[i] > 0)
                 {
+                    if (conf_change_out_of_solution[i] == origin_conf_change_out_of_solution[i] &&
+                        iter - conf_change_timestamp[i] < timestamp_gap)
+                        continue;
                     get_into_local_optima = false;
-                    if (best_item == -1 || solution_contribution[i] > solution_contribution[best_item])
-                        best_item = i;
+                    if (m_star == -1)
+                    {
+                        m_star = i;
+                        continue;
+                    }
+                    if (solution_contribution[i] * weight[m_star] > solution_contribution[m_star] * weight[i])
+                    {
+                        m_star = i;
+                    }
                 }
             }
             if (!get_into_local_optima)
             {
-                Add_Vertex_With_Conf_Change(best_item, iter);
+                Add_Vertex_With_Conf_Change(m_star, iter);
             }
             else
             {
@@ -537,7 +553,11 @@ void CC_Search()
         }
         if (solution_weight_sum <= C && solution_profit_sum > best_solution_profit_sum)
         {
-            if (solution_profit_sum > star_solution_profit_sum) star_solution_time = Get_Time();
+            if (solution_profit_sum > star_solution_profit_sum)
+            {
+                star_solution_time = Get_Time();
+                star_solution_iterations = total_iterations;
+            }
             Solution_To_Best_Solution();
         }
         //printf("iter %d\n",iter);
@@ -623,7 +643,9 @@ void Deep_Optimize()
 clock_t start_time;
 clock_t now_time;
 clock_t star_solution_time = -1;
-int time_limit = 600;//second
+int time_limit;//second
+int total_iterations;
+int star_solution_iterations;
 
 void Start_Clock()
 {
@@ -643,10 +665,12 @@ void Solve()
     Greedy_Initialization();
     while (Get_Time() < time_limit * CLOCKS_PER_SEC)
     {
+        total_iterations++;
         if (solution_profit_sum > star_solution_profit_sum)
         {
             Solution_To_Star_Solution();
             star_solution_time = Get_Time();
+            star_solution_iterations = total_iterations;
         }
         //printf("profit %d\n", solution_profit_sum);
         CC_Search();
