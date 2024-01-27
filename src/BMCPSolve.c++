@@ -335,6 +335,7 @@ int Random_Select_Several_Elements_To_Add_In()
     for (int i = 1; i <= n; i++)
     {
         if (solution_elements[i]) continue;
+        if (elements_neighbor[i].empty()) continue;
         random_list.push(i);
     }
     if (random_list.size <= arms_count) return random_list.size - 1;
@@ -397,7 +398,7 @@ void CC_Search()
     //initialize estimated_element_select_value and element_select_times
     for (int i = 1; i <= n; i++)
     {
-        estimated_element_select_value[i] = 1;
+        estimated_element_select_value[i] = profit[i];
         element_select_times[i] = 0;
     }
     //initialize history
