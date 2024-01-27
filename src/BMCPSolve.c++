@@ -357,13 +357,13 @@ int origin_conf_change_in_solution[maxm];
 int conf_change_timestamp[maxm];
 int timestamp_gap = 3;
 
-int arms_count = 20;
+int arms_count = 35;
 double estimated_element_select_value[maxn];
 int element_select_times[maxn];
 int local_optima_count = 1;
-int lambda = 1000;
+int lambda = 10000;
 int history[maxn];
-int history_count = 20;
+int history_count = 35;
 
 double gamma_value = 0.9;
 double gamma_exp[1001];
@@ -576,6 +576,7 @@ int Random_Select_Several_Elements(int max_num)
     for (int i = 1; i <= n; i++)
     {
         if (solution_elements[i]) continue;
+        if (elements_neighbor[i].empty()) continue;
         random_list.push(i);
     }
     if (random_list.size <= max_num) return random_list.size - 1;
@@ -683,6 +684,6 @@ void Solve()
         //printf("cc %d\n",solution_profit_sum);
         Deep_Optimize();
         //printf("deepopt %d\n",solution_profit_sum);
-        //printf("time %d, star_solution_profit %d\n", Get_Time(), star_solution_profit_sum);
+        printf("time %d, star_solution_profit %d\n", Get_Time(), star_solution_profit_sum);
     }
 }
