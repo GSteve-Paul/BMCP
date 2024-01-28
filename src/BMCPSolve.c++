@@ -349,23 +349,23 @@ int Random_Select_Several_Elements_To_Add_In()
     return arms_count - 1;
 }
 
-int Imax = 100000;
+int Imax;
 int conf_change_out_of_solution[maxm];
 int origin_conf_change_out_of_solution[maxm];
 int conf_change_in_solution[maxm];
 int origin_conf_change_in_solution[maxm];
 int conf_change_timestamp[maxm];
-int timestamp_gap = 3;
+int timestamp_gap;
 
-int arms_count = 35;
+int arms_count;
 double estimated_element_select_value[maxn];
 int element_select_times[maxn];
 int local_optima_count = 1;
-int lambda = 10000;
+int lambda;
 int history[maxn];
-int history_count = 35;
+int history_count;
 
-double gamma_value = 0.9;
+double gamma_value;
 double gamma_exp[1001];
 
 double Upper_Confidence_Bound(int elementIdx)

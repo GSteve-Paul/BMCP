@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <cmath>
 #include <cassert>
+#include <cstring>
 #include "mList.h++"
 
 extern const int maxn;
