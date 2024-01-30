@@ -120,9 +120,9 @@ int main(int argc, char *argv[])
      * arg:
      * input_type 2
      * data_file /home/....
-     * random_seed 0
+     * seed 0
      * time_limit 600
-     * Imax 100000
+     * imax 100000
      * timestamp_gap 3
      * arms_count 20
      * lambda 1000
@@ -131,25 +131,25 @@ int main(int argc, char *argv[])
      *
      */
     int input_type;
-    for(int i=1;i<argc;i+=2)
+    for (int i = 1; i < argc; i += 2)
     {
-        char* arg = argv[i] + 2;
-        if(strcmp(arg,"input_type")==0) sscanf(argv[i+1], "%d", &input_type);
-        else if(strcmp(arg,"data_file")==0)
+        char *arg = argv[i] + 2;
+        if (strcmp(arg, "input_type") == 0) sscanf(argv[i + 1], "%d", &input_type);
+        else if (strcmp(arg, "data_file") == 0)
         {
             if (input_type == 1)
-                Input_From_File(argv[i+1]);
+                Input_From_File(argv[i + 1]);
             else
-                Input_From_File2(argv[i+1]);
+                Input_From_File2(argv[i + 1]);
         }
-        else if(strcmp(arg,"seed")==0) Set_Random_Seed(argv[i+1]);
-        else if(strcmp(arg,"time_limit")==0) Set_Time_Limit(argv[i+1]);
-        else if(strcmp(arg,"imax")==0) Set_Imax(argv[i+1]);
-        else if(strcmp(arg,"timestamp_gap")==0) Set_TimeStamp_Gap(argv[i+1]);
-        else if(strcmp(arg,"arms_count")==0) Set_Arms_Count(argv[i+1]);
-        else if(strcmp(arg,"lambda")==0) Set_Lambda(argv[i+1]);
-        else if(strcmp(arg,"history_count")==0) Set_History_Count(argv[i+1]);
-        else if(strcmp(arg,"gamma")==0) Set_Gamma(argv[i+1]);
+        else if (strcmp(arg, "seed") == 0) Set_Random_Seed(argv[i + 1]);
+        else if (strcmp(arg, "time_limit") == 0) Set_Time_Limit(argv[i + 1]);
+        else if (strcmp(arg, "imax") == 0) Set_Imax(argv[i + 1]);
+        else if (strcmp(arg, "timestamp_gap") == 0) Set_TimeStamp_Gap(argv[i + 1]);
+        else if (strcmp(arg, "arms_count") == 0) Set_Arms_Count(argv[i + 1]);
+        else if (strcmp(arg, "lambda") == 0) Set_Lambda(argv[i + 1]);
+        else if (strcmp(arg, "history_count") == 0) Set_History_Count(argv[i + 1]);
+        else if (strcmp(arg, "gamma") == 0) Set_Gamma(argv[i + 1]);
     }
     Solve();
     Output_Info(argv[2], argv[3]);
