@@ -684,6 +684,6 @@ void Solve()
         //printf("cc %d\n",solution_profit_sum);
         Deep_Optimize();
         //printf("deepopt %d\n",solution_profit_sum);
-        printf("time %d, star_solution_profit %d\n", Get_Time(), star_solution_profit_sum);
+        //printf("time %d, star_solution_profit %d\n", Get_Time(), star_solution_profit_sum);
     }
 }
