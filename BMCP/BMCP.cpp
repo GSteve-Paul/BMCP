@@ -1,7 +1,6 @@
 #include <BMCP.hpp>
 #include <cstdlib>
 #include <cstdio>
-#include <cassert>
 
 void BMCP::BMCPSolver::Add_Item(const int item)
 {
@@ -32,8 +31,6 @@ void BMCP::BMCPSolver::Add_Item(const int item)
             }
         }
     }
-
-    //check_solution();
 }
 
 void BMCP::BMCPSolver::Remove_Item(const int item)
@@ -64,8 +61,6 @@ void BMCP::BMCPSolver::Remove_Item(const int item)
             }
         }
     }
-
-    //check_solution();
 }
 
 void BMCP::BMCPSolver::Add_Item_With_Conf_Change(const int item, const int iter)
@@ -106,8 +101,6 @@ void BMCP::BMCPSolver::Add_Item_With_Conf_Change(const int item, const int iter)
             }
         }
     }
-
-    //check_solution();
 }
 
 void BMCP::BMCPSolver::Remove_Item_With_Conf_Change(const int item, const int iter)
@@ -147,8 +140,6 @@ void BMCP::BMCPSolver::Remove_Item_With_Conf_Change(const int item, const int it
             }
         }
     }
-
-    //check_solution();
 }
 
 void BMCP::BMCPSolver::Solution_To_Best_Solution()
@@ -355,7 +346,7 @@ void BMCP::BMCPSolver::CC_Search()
             }
             if (!get_into_local_optimum)
             {
-                int idx = Multiple_Selections(30);
+                int idx = Multiple_Selections(20);
                 int ustar = -1;
                 for (int i = 0; i <= idx; i++)
                 {
@@ -464,7 +455,7 @@ void BMCP::BMCPSolver::Deep_Optimize()
                 ustar_idx = j;
             }
         }
-        if(ustar != -1)
+        if (ustar != -1)
         {
             std::swap(random_list[ustar_idx], random_list[i]);
         }
