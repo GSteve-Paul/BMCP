@@ -75,14 +75,18 @@ void BMCP::BMCPSolver::Add_Item_With_Conf_Change(const int item, const int iter)
     solution_weight_sum += g->weight[item];
 
     origin_conf_change_in_solution[item] = conf_change_in_solution[item] = solution_contribution[item];
+
     conf_change_timestamp[item] = iter;
 
     for (int elem_nei: g->item_neighbor[item])
     {
-        solution_elements[elem_nei] += 1;
+        solution_elements[elem_nei]++;
         if (solution_elements[elem_nei] == 1)
         {
             solution_profit_sum += g->profit[elem_nei];
+
+            element_select_time[elem_nei] = iter;
+
             for (int item_nei: g->element_neighbor[elem_nei])
             {
                 if (solution[item_nei]) [[unlikely]] continue;
@@ -113,6 +117,7 @@ void BMCP::BMCPSolver::Remove_Item_With_Conf_Change(const int item, const int it
     solution_weight_sum -= g->weight[item];
 
     origin_conf_change_out_of_solution[item] = conf_change_out_of_solution[item] = solution_contribution[item];
+
     conf_change_timestamp[item] = iter;
 
     for (int elem_nei: g->item_neighbor[item])
@@ -121,6 +126,9 @@ void BMCP::BMCPSolver::Remove_Item_With_Conf_Change(const int item, const int it
         if (solution_elements[elem_nei] == 0)
         {
             solution_profit_sum -= g->profit[elem_nei];
+
+            element_satisfied_time[elem_nei] = iter - element_select_time[elem_nei];
+
             for (int item_nei: g->element_neighbor[elem_nei])
             {
                 if (item_nei == item) [[unlikely]]continue;
@@ -241,7 +249,7 @@ void BMCP::BMCPSolver::Greedy_Initialization()
         origin_conf_change_out_of_solution[i] = 1;
         conf_change_in_solution[i] = 0;
         origin_conf_change_in_solution[i] = 1;
-        conf_change_timestamp[i] = -timestamp_gap * 1.5;
+        conf_change_timestamp[i] = 0;
     }
     //init estimated value and select times
     for (int i = 1; i <= g->m; i++)
@@ -251,7 +259,7 @@ void BMCP::BMCPSolver::Greedy_Initialization()
     }
 }
 
-int BMCP::BMCPSolver::Multiple_Selections(int amount)
+int BMCP::BMCPSolver::Multiple_Selections(const int amount)
 {
     if (random_list.size() <= amount) [[unlikely]]
         return random_list.size() - 1;
@@ -264,12 +272,12 @@ int BMCP::BMCPSolver::Multiple_Selections(int amount)
     return amount - 1;
 }
 
-double BMCP::BMCPSolver::Upper_Confidence_Bound(int item)
+double BMCP::BMCPSolver::Upper_Confidence_Bound(const int item)
 {
     return (double) r_sum[item] / select_times[item];
 }
 
-double BMCP::BMCPSolver::r(int item)
+double BMCP::BMCPSolver::r(const int item)
 {
     return (double) solution_contribution[item] / (solution_weight_sum + g->weight[item] - g->C);
 }
@@ -283,6 +291,11 @@ void BMCP::BMCPSolver::CC_Search()
     {
         if (solution[i])
             in_solution.insert(i);
+    }
+
+    for (int i = 1; i <= g->n; i++)
+    {
+        element_select_time[i] = 0;
     }
 
     int iter = 0;
@@ -402,6 +415,12 @@ void BMCP::BMCPSolver::CC_Search()
         }
         iter++;
     }
+
+    for (int i = 1; i <= g->n; i++)
+    {
+        if (solution_elements[i])
+            element_satisfied_time[i] = Imax1 - element_select_time[i];
+    }
 }
 
 void BMCP::BMCPSolver::Deep_Optimize()
@@ -424,12 +443,33 @@ void BMCP::BMCPSolver::Deep_Optimize()
     random_list.clear();
     for (int i = 1; i <= g->n; i++)
     {
-        if (solution_elements[i]) [[likely]]continue;
-        if (g->element_neighbor[i].empty()) [[unlikely]] continue;
         random_list.push_back(i);
     }
-    int idx = Multiple_Selections(block_list_size);
-    for (int i = 0; i <= idx; i++)
+    for (int i = 0; i < block_list_size; i++)
+    {
+        int ustar = -1;
+        int ustar_idx;
+        for (int j = i + 1; j < g->n; j++)
+        {
+            int elem = random_list[j];
+            if (ustar == -1)
+            {
+                ustar = elem;
+                ustar_idx = j;
+                continue;
+            }
+            if (element_select_time[elem] < element_select_time[ustar])
+            {
+                ustar = elem;
+                ustar_idx = j;
+            }
+        }
+        if(ustar != -1)
+        {
+            std::swap(random_list[ustar_idx], random_list[i]);
+        }
+    }
+    for (int i = 0; i < block_list_size; i++)
     {
         int elem = random_list[i];
         if (solution_elements[elem]) continue;
@@ -458,7 +498,7 @@ void BMCP::BMCPSolver::Deep_Optimize()
     //init tabu
     for (int i = 1; i <= g->m; i++)
     {
-        tabu_list[i] = -tabu_length * 1.5;
+        tabu_list[i] = 0;
     }
     int iter = 0;
     while (iter < Imax2)
@@ -599,62 +639,7 @@ void BMCP::BMCPSolver::Solve()
     }
 }
 
-
-void BMCP::BMCPSolver::check_solution()
-{
-    debug_weight_sum = 0;
-    debug_profit_sum = 0;
-    debug_size = 0;
-    for (int i = 1; i <= g->m; i++)
-    {
-        debug[i] = solution[i];
-        debug_contribution[i] = 0;
-        if (debug[i])
-        {
-            debug_weight_sum += g->weight[i];
-            debug_size++;
-        }
-    }
-    for (int i = 1; i <= g->n; i++)
-        debug_elements[i] = 0;
-    for (int i = 1; i <= g->m; i++)
-    {
-        if (!debug[i]) continue;
-        for (int elem_nei: g->item_neighbor[i])
-        {
-            debug_elements[elem_nei]++;
-        }
-    }
-    for (int i = 1; i <= g->n; i++)
-    {
-        if (debug_elements[i])
-            debug_profit_sum += g->profit[i];
-    }
-    for (int i = 1; i <= g->m; i++)
-    {
-        for (int elem_nei: g->item_neighbor[i])
-        {
-            if (debug[i] && debug_elements[elem_nei] == 1)
-                debug_contribution[i] += g->profit[elem_nei];
-            if (!debug[i] && debug_elements[elem_nei] == 0)
-                debug_contribution[i] += g->profit[elem_nei];
-        }
-    }
-
-    assert(debug_size == solution_size);
-    assert(debug_profit_sum == solution_profit_sum);
-    assert(debug_weight_sum == solution_weight_sum);
-    for (int i = 1; i <= g->m; i++)
-    {
-        assert(debug_contribution[i] == solution_contribution[i]);
-    }
-    for (int i = 1; i <= g->n; i++)
-    {
-        assert(debug_elements[i] == solution_elements[i]);
-    }
-}
-
 int BMCP::BMCPSolver::rand_deviation(int num)
 {
-    return num + (rand() % (int)(0.3 * num) - (int)0.15 * num);
+    return num + (rand() % (int) (0.3 * num) - (int) 0.15 * num);
 }

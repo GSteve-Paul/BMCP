@@ -28,16 +28,6 @@ namespace BMCP
         int *solution_contribution;
         int *solution_elements;
 
-
-        //debug
-        int debug_weight_sum;
-        int debug_profit_sum;
-        int *debug;
-        int debug_size;
-        int *debug_contribution;
-        int *debug_elements;
-
-
         //best_solution
         int best_solution_weight_sum;
         int best_solution_profit_sum;
@@ -88,7 +78,7 @@ namespace BMCP
         int timestamp_gap = 20;
         double lambda;
 
-        //multi-armed bandit
+        //heuristic
         double *r_sum;
         int *select_times;
 
@@ -99,6 +89,9 @@ namespace BMCP
         int Multiple_Selections(int);
 
         void CC_Search();
+
+        int *element_satisfied_time;
+        int *element_select_time;
 
         //deep-optimization
         int Imax2;
