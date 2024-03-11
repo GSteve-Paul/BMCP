@@ -622,6 +622,7 @@ void BMCP::BMCPSolver::Solve()
             //star_solution_time = Get_Time();
             Solution_To_Star_Solution();
             printf("%lf %d %d\n", 1.0 * Get_Time() / CLOCKS_PER_SEC, total_iterations, star_solution_profit_sum);
+            fflush(stdout);
         }
         total_iterations++;
         CC_Search();
@@ -631,11 +632,11 @@ void BMCP::BMCPSolver::Solve()
             //star_solution_time = Get_Time();
             Solution_To_Star_Solution();
             printf("%lf %d %d\n", 1.0 * Get_Time() / CLOCKS_PER_SEC, total_iterations, star_solution_profit_sum);
+            fflush(stdout);
         }
         Deep_Optimize();
         Best_Solution_To_Solution();
         //printf("%lf %d %d\n", 1.0 * Get_Time() / CLOCKS_PER_SEC, total_iterations, star_solution_profit_sum);
-        //fflush(stdout);
     }
 }
 
