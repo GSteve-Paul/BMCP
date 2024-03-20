@@ -1,7 +1,5 @@
 #include <BMCP.hpp>
 
-using ll = long long;
-
 BMCP::BMCPSolver::BMCPSolver(Graph *g, unsigned int seed, int time_limit, int Imax1,
                              int Imax2, double lambda) :
         g(g), seed(seed), time_limit(time_limit), Imax1(Imax1), Imax2(Imax2) ,lambda(lambda)

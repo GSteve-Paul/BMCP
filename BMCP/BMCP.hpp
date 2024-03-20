@@ -64,7 +64,7 @@ namespace BMCP
 
         void Remove_Item_With_Conf_Change(int, int);
 
-        int rand_deviation(int);
+        static int rand_deviation(int);
 
         //transmit
         void Solution_To_Best_Solution();
@@ -85,7 +85,7 @@ namespace BMCP
         int *conf_change_in_solution;
         int *origin_conf_change_in_solution;
         int *conf_change_timestamp;
-        int timestamp_gap = 20;
+        int tabu_length1 = 5;
         double lambda;
 
         //multi-armed bandit
@@ -105,7 +105,7 @@ namespace BMCP
         int *block_list;
         int block_list_size;
         int *tabu_list;
-        int tabu_length = 5;
+        int tabu_length2 = 5;
 
         void Deep_Optimize();
 

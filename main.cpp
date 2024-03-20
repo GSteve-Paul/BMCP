@@ -32,11 +32,6 @@ void Set_Imax2(char *arg)
     sscanf(arg, "%d", &Imax2);
 }
 
-void Set_Timestamp_Gap(char *arg)
-{
-    sscanf(arg, "%d", &timestamp_gap);
-}
-
 void Set_Lambda(char *arg)
 {
     sscanf(arg, "%lf", &lambda);
@@ -123,7 +118,7 @@ int main(int argc, char *argv[])
     }
     if (input_type != 1 && input_type != 2)
     {
-        fputs("Unknown or invalid input_type!", stderr);
+        fputs("Unknown or invalid input_type!\n", stderr);
         return -1;
     }
     for (int i = 1; i < argc; i += 2)
@@ -134,7 +129,7 @@ int main(int argc, char *argv[])
     }
     if (file_path == nullptr)
     {
-        fputs("Unknown or invalid file_path!", stderr);
+        fputs("Unknown or invalid file_path!\n", stderr);
         return 1;
     }
     if (input_type == 1)
@@ -150,7 +145,7 @@ int main(int argc, char *argv[])
         }
         else if (strcmp(arg, "time_limit") == 0) Set_Time_Limit(argv[i + 1]);
         else if (strcmp(arg, "imax1") == 0) Set_Imax1(argv[i + 1]);
-        //else if (strcmp(arg, "timestamp_gap") == 0) Set_Timestamp_Gap(argv[i + 1]);
+        //else if (strcmp(arg, "tabu_length1") == 0) Set_Timestamp_Gap(argv[i + 1]);
         else if (strcmp(arg, "lambda") == 0) Set_Lambda(argv[i + 1]);
         else if (strcmp(arg, "imax2") == 0) Set_Imax2(argv[i + 1]);
     }
