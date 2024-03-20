@@ -236,6 +236,16 @@ void BMCP::BMCPSolver::Greedy_Initialization()
         else
             r_sum[i] = (double) solution_contribution[i] / (solution_weight_sum + g->weight[i] - g->C);
     }
+
+    //init cc
+    for (int i = 1; i <= g->m; i++)
+    {
+        if(solution[i])
+            conf_change_in_solution[i] = origin_conf_change_in_solution[i] = solution_contribution[i];
+        else
+            conf_change_out_of_solution[i] = origin_conf_change_out_of_solution[i] = solution_contribution[i];
+        conf_change_timestamp[i] = 0;
+    }
 }
 
 int BMCP::BMCPSolver::Multiple_Selections(int amount)
@@ -263,15 +273,6 @@ double BMCP::BMCPSolver::r(int item)
 void BMCP::BMCPSolver::CC_Search()
 {
     Solution_To_Best_Solution();
-    //init cc
-    for (int i = 1; i <= g->m; i++)
-    {
-        conf_change_out_of_solution[i] = 0;
-        origin_conf_change_out_of_solution[i] = 1;
-        conf_change_in_solution[i] = 0;
-        origin_conf_change_in_solution[i] = 1;
-        conf_change_timestamp[i] = 0;
-    }
 
     in_solution.clear();
     for (int i = 1; i <= g->m; i++)
@@ -483,10 +484,6 @@ void BMCP::BMCPSolver::Deep_Optimize()
                 tabu_list[ustar] = iter + rand_deviation(tabu_length2);
             }
         }
-        if (solution_weight_sum <= g->C && solution_profit_sum > best_solution_profit_sum)
-        {
-            Solution_To_Best_Solution();
-        }
         if (solution_weight_sum >= g->C)
         {
             int ustar = -1;
@@ -516,11 +513,17 @@ void BMCP::BMCPSolver::Deep_Optimize()
                 tabu_list[ustar] = iter + rand_deviation(tabu_length2);
             }
         }
-        if (solution_weight_sum <= g->C && solution_profit_sum > best_solution_profit_sum)
-        {
-            Solution_To_Best_Solution();
-        }
         iter++;
+    }
+
+    //recalculate cc
+    for (int i = 1; i <= g->m; i++)
+    {
+        if(solution[i])
+            conf_change_in_solution[i] = origin_conf_change_in_solution[i] = solution_contribution[i];
+        else
+            conf_change_out_of_solution[i] = origin_conf_change_out_of_solution[i] = solution_contribution[i];
+        conf_change_timestamp[i] = 0;
     }
 }
 
@@ -539,13 +542,13 @@ void BMCP::BMCPSolver::Solve()
 {
     Start_Clock();
     Greedy_Initialization();
+    if (solution_profit_sum > star_solution_profit_sum)
+    {
+        Solution_To_Star_Solution();
+        printf("%lf %d %d\n", 1.0 * Get_Time() / CLOCKS_PER_SEC, total_iterations, star_solution_profit_sum);
+    }
     while (Get_Time() < time_limit * CLOCKS_PER_SEC)
     {
-        if (solution_profit_sum > star_solution_profit_sum)
-        {
-            Solution_To_Star_Solution();
-            printf("%lf %d %d\n", 1.0 * Get_Time() / CLOCKS_PER_SEC, total_iterations, star_solution_profit_sum);
-        }
         total_iterations++;
         CC_Search();
         Best_Solution_To_Solution();
@@ -555,7 +558,6 @@ void BMCP::BMCPSolver::Solve()
             printf("%lf %d %d\n", 1.0 * Get_Time() / CLOCKS_PER_SEC, total_iterations, star_solution_profit_sum);
         }
         Deep_Optimize();
-        Best_Solution_To_Solution();
         //printf("%lf %d %d\n", 1.0 * Get_Time() / CLOCKS_PER_SEC, total_iterations, star_solution_profit_sum);
         fflush(stdout);
     }
