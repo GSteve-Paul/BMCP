@@ -61,8 +61,6 @@ void BMCP::BMCPSolver::Remove_Item(const int item)
             }
         }
     }
-
-    //check_solution();
 }
 
 void BMCP::BMCPSolver::Add_Item_With_Conf_Change(const int item, const int iter)
@@ -236,6 +234,21 @@ void BMCP::BMCPSolver::Greedy_Initialization()
         else
             r_sum[i] = (double) solution_contribution[i] / (solution_weight_sum + g->weight[i] - g->C);
     }
+
+    for (int i = 1; i <= g->m; i++)
+    {
+        conf_change_timestamp[i] = 0;
+        if (solution[i])
+        {
+            origin_conf_change_in_solution[i] = solution_contribution[i];
+            conf_change_in_solution[i] = 0;
+        }
+        else
+        {
+            origin_conf_change_out_of_solution[i] = solution_contribution[i];
+            conf_change_out_of_solution[i] = 0;
+        }
+    }
 }
 
 int BMCP::BMCPSolver::Multiple_Selections(int amount)
@@ -263,15 +276,6 @@ double BMCP::BMCPSolver::r(int item)
 void BMCP::BMCPSolver::CC_Search()
 {
     Solution_To_Best_Solution();
-    //init cc
-    for (int i = 1; i <= g->m; i++)
-    {
-        conf_change_out_of_solution[i] = 0;
-        origin_conf_change_out_of_solution[i] = 1;
-        conf_change_in_solution[i] = 0;
-        origin_conf_change_in_solution[i] = 1;
-        conf_change_timestamp[i] = 0;
-    }
 
     in_solution.clear();
     for (int i = 1; i <= g->m; i++)
@@ -521,6 +525,21 @@ void BMCP::BMCPSolver::Deep_Optimize()
             Solution_To_Best_Solution();
         }
         iter++;
+    }
+
+    for (int i = 1; i <= g->m; i++)
+    {
+        conf_change_timestamp[i] = 0;
+        if (solution[i])
+        {
+            origin_conf_change_in_solution[i] = solution_contribution[i];
+            conf_change_in_solution[i] = 0;
+        }
+        else
+        {
+            origin_conf_change_out_of_solution[i] = solution_contribution[i];
+            conf_change_out_of_solution[i] = 0;
+        }
     }
 }
 
