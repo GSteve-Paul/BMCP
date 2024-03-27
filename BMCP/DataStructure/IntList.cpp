@@ -9,14 +9,14 @@ BMCP::IntList::IntList()
     _end = nullptr;
 }
 
-BMCP::IntList::IntList(int size)
+BMCP::IntList::IntList(const int size)
 {
     _begin = new int[size];
     _capacity = size;
     _end = _begin + size;
 }
 
-int BMCP::IntList::size()
+int BMCP::IntList::size() const
 {
     return _end - _begin;
 }
@@ -72,8 +72,9 @@ void BMCP::IntList::expand()
 
 void BMCP::IntList::pop_back()
 {
-    if (size() <= 0) [[unlikely]]
-        throw std::overflow_error("Not enough int in List to be popped back");
+    if (size() <= 0)
+        [[unlikely]]
+                throw std::overflow_error("Not enough int in List to be popped back");
     _end--;
 }
 
@@ -119,4 +120,39 @@ int &BMCP::IntList::back()
 bool BMCP::IntList::empty()
 {
     return size() == 0;
+}
+
+BMCP::IntList::IntList(const BMCP::IntList &list)
+{
+    this->_capacity = list._capacity;
+    this->_begin = new int[this->_capacity];
+    this->_end = _begin + list.size();
+    for (int *it = this->_begin, *it2 = list._begin; it != this->_end; ++it, ++it2)
+    {
+        *it = *it2;
+    }
+}
+
+BMCP::IntList::IntList(BMCP::IntList &&list) noexcept
+{
+    this->_capacity = list._capacity;
+    this->_begin = list._begin;
+    this->_end = list._end;
+    list._begin = nullptr;
+    list._end = nullptr;
+}
+
+BMCP::IntList &BMCP::IntList::operator=(const BMCP::IntList &list)
+{
+    if(this != &list)
+    {
+        this->_capacity = list._capacity;
+        this->_begin = new int[this->_capacity];
+        this->_end = _begin + list.size();
+        for (int *it = this->_begin, *it2 = list._begin; it != this->_end; ++it, ++it2)
+        {
+            *it = *it2;
+        }
+    }
+    return *this;
 }
