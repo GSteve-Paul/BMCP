@@ -281,7 +281,18 @@ void BMCP::BMCPSolver::CC_Search()
     for (int i = 1; i <= g->m; i++)
     {
         if (solution[i])
+        {
             in_solution.insert(i);
+            origin_conf_change_in_solution[i] = solution_contribution[i];
+            conf_change_in_solution[i] = 0;
+            conf_change_timestamp[i] = 0;
+        }
+        else
+        {
+            origin_conf_change_out_of_solution[i] = solution_contribution[i];
+            conf_change_out_of_solution[i] = 0;
+            conf_change_timestamp[i] = 0;
+        }
     }
 
     int iter = 0;
@@ -298,14 +309,8 @@ void BMCP::BMCPSolver::CC_Search()
                 if (conf_change_in_solution[item] > origin_conf_change_in_solution[item] * lambda &&
                     iter < conf_change_timestamp[item])
                     continue;
-                if (ustar == -1)
-                {
-                    ustar = item;
-                    ustar_idx = i;
-                    continue;
-                }
-                if (solution_contribution[item] * g->weight[ustar] <
-                    solution_contribution[ustar] * g->weight[item])
+                if (ustar == -1 || solution_contribution[item] * g->weight[ustar] <
+                                   solution_contribution[ustar] * g->weight[item])
                 {
                     ustar = item;
                     ustar_idx = i;
@@ -326,30 +331,23 @@ void BMCP::BMCPSolver::CC_Search()
 
         if (solution_weight_sum <= g->C)
         {
-            bool get_into_local_optimum = true;
-            random_list.clear();
-            for (int i = 1; i <= g->m; i++)
+            int randnum = rand() % 100;
+            if (randnum < 50) // direct select
             {
-                if (solution[i]) continue;
-                if (solution_weight_sum + g->weight[i] > g->C) continue;
-                if (solution_contribution[i] == 0) continue;
-                random_list.push_back(i);
-                get_into_local_optimum = false;
-            }
-            if (!get_into_local_optimum)
-            {
-                int idx = Multiple_Selections(30);
+                random_list.clear();
+                for (int i = 1; i <= g->m; i++)
+                {
+                    if (solution[i]) continue;
+                    if (solution_contribution[i] == 0) continue;
+                    random_list.push_back(i);
+                }
+                int idx = Multiple_Selections(15);
                 int ustar = -1;
                 for (int i = 0; i <= idx; i++)
                 {
                     int item = random_list[i];
-                    if (ustar == -1)
-                    {
-                        ustar = item;
-                        continue;
-                    }
-                    if (solution_contribution[item] * g->weight[ustar] >
-                        solution_contribution[ustar] * g->weight[item])
+                    if (ustar == -1 || solution_contribution[item] * g->weight[ustar] >
+                                       solution_contribution[ustar] * g->weight[item])
                         ustar = item;
                 }
                 if (ustar != -1)
@@ -366,6 +364,7 @@ void BMCP::BMCPSolver::CC_Search()
                 for (int i = 1; i <= g->m; i++)
                 {
                     if (solution[i]) continue;
+                    if (solution_contribution[i] == 0) continue;
                     if (ustar == -1)
                     {
                         ustar = i;
@@ -465,20 +464,17 @@ void BMCP::BMCPSolver::Deep_Optimize()
                 if (solution_profit_sum + solution_contribution[i] > best_solution_profit_sum &&
                     solution_weight_sum + g->weight[i] <= g->C)
                 {
-                    ustar = i;
+                    if (ustar == -1 ||
+                        solution_contribution[i] * g->weight[ustar] >
+                        solution_contribution[ustar] * g->weight[i])
+                        ustar = i;
                     continue;
                 }
-                if (iter - tabu_list[i] < tabu_length2) continue;
-                if (ustar == -1)
-                {
-                    ustar = i;
-                    continue;
-                }
-                if (solution_contribution[i] * g->weight[ustar] >
+                if (iter < tabu_list[i]) continue;
+                if (ustar == -1 ||
+                    solution_contribution[i] * g->weight[ustar] >
                     solution_contribution[ustar] * g->weight[i])
-                {
                     ustar = i;
-                }
             }
             if (ustar != -1)
             {
@@ -499,14 +495,9 @@ void BMCP::BMCPSolver::Deep_Optimize()
             {
                 int item = in_solution[i];
                 if (block_list[item]) continue;
-                if (iter - tabu_list[item] < tabu_length2) continue;
-                if (ustar == -1)
-                {
-                    ustar = item;
-                    ustar_idx = i;
-                    continue;
-                }
-                if (solution_contribution[item] * g->weight[ustar] <
+                if (iter < tabu_list[item]) continue;
+                if (ustar == -1 ||
+                    solution_contribution[item] * g->weight[ustar] <
                     solution_contribution[ustar] * g->weight[item])
                 {
                     ustar = item;
@@ -525,21 +516,6 @@ void BMCP::BMCPSolver::Deep_Optimize()
             Solution_To_Best_Solution();
         }
         iter++;
-    }
-
-    for (int i = 1; i <= g->m; i++)
-    {
-        conf_change_timestamp[i] = 0;
-        if (solution[i])
-        {
-            origin_conf_change_in_solution[i] = solution_contribution[i];
-            conf_change_in_solution[i] = 0;
-        }
-        else
-        {
-            origin_conf_change_out_of_solution[i] = solution_contribution[i];
-            conf_change_out_of_solution[i] = 0;
-        }
     }
 }
 
