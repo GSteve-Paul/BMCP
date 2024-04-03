@@ -27,7 +27,16 @@ namespace BMCP
         int solution_size;
         int *solution_contribution;
         int *solution_elements;
-        SetList in_solution;
+
+
+        //debug
+        int debug_weight_sum;
+        int debug_profit_sum;
+        int *debug;
+        int debug_size;
+        int *debug_contribution;
+        int *debug_elements;
+
 
         //best_solution
         int best_solution_weight_sum;
@@ -36,7 +45,6 @@ namespace BMCP
         int best_solution_size;
         int *best_solution_contribution;
         int *best_solution_elements;
-        SetList in_best_solution;
 
         //Set Time
         clock_t start_time;
@@ -64,6 +72,8 @@ namespace BMCP
         void Solution_To_Star_Solution();
 
         void Best_Solution_To_Solution();
+
+        SetList in_solution;
 
         //initialize greedily
         void Greedy_Initialization();
@@ -99,10 +109,6 @@ namespace BMCP
 
         void Deep_Optimize();
 
-        //restart
-        int remove_size = 5;
-
-        void Restart();
     public:
         //star_solution
         int star_solution_weight_sum;
@@ -111,7 +117,6 @@ namespace BMCP
         int star_solution_size;
         int *star_solution_contribution;
         int *star_solution_elements;
-        SetList in_star_solution;
         clock_t star_solution_time;
         int star_solution_iterations;
         int total_iterations;
@@ -127,6 +132,8 @@ namespace BMCP
         void Output() const;
 
         ~BMCPSolver();
+
+        [[maybe_unused]] void check_solution();
     };
 }
 
