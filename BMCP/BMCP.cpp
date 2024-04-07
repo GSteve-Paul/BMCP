@@ -243,7 +243,8 @@ int BMCP::BMCPSolver::Multiple_Selections(int amount)
 
 double BMCP::BMCPSolver::Upper_Confidence_Bound(int item)
 {
-    return (double) r_sum[item] / std::max(1, select_times[item]);
+    return (double) r_sum[item] / std::max(1, select_times[item]) +
+           gamma * sqrt((double) bandit_count / std::max(1, select_times[item]));
 }
 
 double BMCP::BMCPSolver::r(int item)
@@ -256,6 +257,7 @@ void BMCP::BMCPSolver::CC_Search()
 {
     Solution_To_Best_Solution();
 
+    bandit_count = 0;
     for (int i = 1; i <= g->m; i++)
     {
         r_sum[i] = r(i);
@@ -337,6 +339,7 @@ void BMCP::BMCPSolver::CC_Search()
             }
             else
             {
+                bandit_count++;
                 int ustar = -1;
                 double ustar_ucb;
                 double tmp_ucb;
@@ -493,20 +496,20 @@ void BMCP::BMCPSolver::Deep_Optimize()
 void BMCP::BMCPSolver::Restart()
 {
     int erase_cnt = 0;
-    while(erase_cnt < remove_size && solution_weight_sum > 0)
+    while (erase_cnt < remove_size && solution_weight_sum > 0)
     {
         int ustar = -1;
         int ustar_idx;
         for (int i = 0; i != in_solution.size(); i++)
         {
             int item = in_solution[i];
-            if(ustar == -1 || select_times[item] < select_times[ustar])
+            if (ustar == -1 || select_times[item] < select_times[ustar])
             {
                 ustar = item;
                 ustar_idx = i;
             }
         }
-        if(ustar != -1)
+        if (ustar != -1)
         {
             in_solution.erase(ustar_idx);
             Remove_Item(ustar);

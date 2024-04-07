@@ -96,6 +96,8 @@ namespace BMCP
         int block_list_size;
         int *tabu_list;
         int tabu_length2 = 5;
+        double gamma = 1;
+        int bandit_count;
 
         void Deep_Optimize();
 
