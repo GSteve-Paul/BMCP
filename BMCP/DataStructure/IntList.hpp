@@ -26,9 +26,15 @@ namespace BMCP
 
         IntList();
 
-        IntList(int);
+        IntList(const int);
 
-        int size();
+        IntList(const IntList&);
+
+        IntList(IntList&&) noexcept;
+
+        IntList& operator=(const IntList&);
+
+        int size() const;
 
         int capacity();
 
