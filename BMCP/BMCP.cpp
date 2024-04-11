@@ -551,6 +551,7 @@ void BMCP::BMCPSolver::Solve()
             printf("%lf %d %d\n", 1.0 * Get_Time() / CLOCKS_PER_SEC, total_iterations, star_solution_profit_sum);
         }
         /* DeepOpt */
+        /*
         Deep_Optimize();
         Best_Solution_To_Solution();
         if (solution_profit_sum > star_solution_profit_sum)
@@ -558,6 +559,7 @@ void BMCP::BMCPSolver::Solve()
             Solution_To_Star_Solution();
             printf("%lf %d %d\n", 1.0 * Get_Time() / CLOCKS_PER_SEC, total_iterations, star_solution_profit_sum);
         }
+         */
         Restart();
         //printf("%lf %d %d\n", 1.0 * Get_Time() / CLOCKS_PER_SEC, total_iterations, star_solution_profit_sum);
         fflush(stdout);
