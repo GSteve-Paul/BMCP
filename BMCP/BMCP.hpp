@@ -75,7 +75,7 @@ namespace BMCP
         int *conf_change_in_solution;
         int *origin_conf_change_in_solution;
         int *conf_change_timestamp;
-        int tabu_length1 = 5;
+        int tabu_length1 = 0;
         double lambda;
 
         //multi-armed bandit
@@ -95,7 +95,7 @@ namespace BMCP
         int *block_list;
         int block_list_size;
         int *tabu_list;
-        int tabu_length2 = 5;
+        int tabu_length2 = 0;
         double gamma = 1;
         int bandit_count;
 
