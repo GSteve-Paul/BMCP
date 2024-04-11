@@ -312,9 +312,11 @@ void BMCP::BMCPSolver::CC_Search()
 
         if (solution_weight_sum <= g->C)
         {
+            /*
             int randnum = rand() % 100;
+
             if (randnum < 50) // direct select
-            {
+            {*/
                 random_list.clear();
                 for (int i = 1; i <= g->m; i++)
                 {
@@ -336,7 +338,8 @@ void BMCP::BMCPSolver::CC_Search()
                     in_solution.insert(ustar);
                     Add_Item_With_Conf_Change(ustar, iter);
                 }
-            }
+            /*}
+
             else
             {
                 bandit_count++;
@@ -367,6 +370,7 @@ void BMCP::BMCPSolver::CC_Search()
                     Add_Item_With_Conf_Change(ustar, iter);
                 }
             }
+             */
         }
         //printf("%d %d %d\n", iter, solution_weight_sum, solution_profit_sum);
         //fflush(stdout);
